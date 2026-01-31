@@ -34,11 +34,30 @@ jobs:
       - name: Pack
         run: cmake --build build --config Release --target package && tree build/pack /A /F
 
+      - name: Rename and Prepare Artifacts
+        shell: pwsh
+        run: |
+          mkdir dist
+          
+          $arch = "${{ matrix.target }}"
+          $targetName = ""
+          if ($arch -eq "x64") { $targetName = "IngameIME_Java-x64.dll" }
+          elseif ($arch -eq "win32") { $targetName = "IngameIME_Java-x86.dll" }
+          elseif ($arch -eq "arm64") { $targetName = "IngameIME_Java-arm64.dll" }
+          
+          $dllFile = Get-ChildItem -Path build -Filter "*.dll" -Recurse | Select-Object -First 1
+          if ($dllFile) {
+           Copy-Item $dllFile.FullName "dist/$targetName"
+           echo "Successfully prepared $targetName"
+          } else {
+           throw "Could not find compiled DLL file!"
+          }
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: IngameIME-${{ matrix.target }}
-          path: build/Release/*.dll
+          name: IngameIME-Native-${{ matrix.target }}
+          path: dist/
 
       - name: Release
         uses: softprops/action-gh-release@v1
