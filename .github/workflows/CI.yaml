@@ -35,10 +35,10 @@ jobs:
         run: cmake --build build --config Release --target package && tree build/pack /A /F
 
       - name: Upload Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: IngameIME-Windows-x64
-        path: build/Release/*.dll
+        uses: actions/upload-artifact@v4
+        with:
+          name: IngameIME-Windows-x64
+          path: build/Release/*.dll
 
       - name: Release
         uses: softprops/action-gh-release@v1
