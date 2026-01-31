@@ -11,24 +11,31 @@ struct EnumData
     HWND  hWnd;
 };
 
-BOOL CALLBACK EnumProc(HWND hWnd, LPARAM lParam)
-{
+BOOL CALLBACK EnumProc(HWND hWnd, LPARAM lParam) {
     EnumData& data = *(EnumData*)lParam;
-    DWORD     pid  = 0;
+    DWORD pid = 0;
     GetWindowThreadProcessId(hWnd, &pid);
 
-    if (pid == data.pid && IsWindowVisible(hWnd) && GetWindow(hWnd, GW_OWNER) == NULL)
-    {
-        data.hWnd = hWnd;
-        return FALSE;
+    if (pid == data.pid) {
+        char className[256];
+        GetClassNameA(hWnd, className, sizeof(className));
+        if ((IsWindowVisible(hWnd) || strstr(className, "LWJGL") || strstr(className, "GLFW"))
+            && GetWindow(hWnd, GW_OWNER) == NULL) {
+            data.hWnd = hWnd;
+            return FALSE;
+        }
     }
+
+    printf("IngameIME Debug: Found HWND 0x%p, PID %d, Visible: %d\n", hWnd, pid, IsWindowVisible(hWnd));
     return TRUE;
 }
+
 
 HWND FindProcessWindow()
 {
     EnumData data = {GetCurrentProcessId(), NULL};
     EnumWindows(EnumProc, (LPARAM)&data);
+    printf("IngameIME Debug: Searching for PID %d\n", GetCurrentProcessId());
     return data.hWnd;
 }
 
