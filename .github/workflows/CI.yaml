@@ -37,7 +37,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: IngameIME-${{ matrix.arch || strategy.job-index }}
+          name: IngameIME-${{ matrix.target }}
           path: build/Release/*.dll
 
       - name: Release
